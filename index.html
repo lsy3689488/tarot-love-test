@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🔮 恋爱塔罗牌</title>
+<style>
+:root {
+  --bg:#0a0612; --card:#1a1428; --gold:#d4a859; --goldL:#f0d48a;
+  --glow:rgba(212,168,89,.25); --text:#eee6d8; --muted:#a8957a; --border:#2f2640;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+
+/* ===== 塔罗背景 ===== */
+body{
+  font-family:"PingFang SC","Microsoft YaHei","Noto Serif SC",serif;
+  background:var(--bg);
+  color:var(--text); min-height:100vh; display:flex; justify-content:center; align-items:center; padding:20px;
+  position:relative; overflow-x:hidden;
+}
+/* 星空背景 */
+body::before{
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:
+    /* 星星 - 用 radial-gradient 模拟 */
+    radial-gradient(1px 1px at 10% 15%, rgba(255,255,255,.8), transparent),
+    radial-gradient(1px 1px at 20% 35%, rgba(255,255,255,.6), transparent),
+    radial-gradient(1.5px 1.5px at 30% 10%, rgba(255,255,255,.9), transparent),
+    radial-gradient(1px 1px at 45% 25%, rgba(255,255,255,.5), transparent),
+    radial-gradient(1px 1px at 55% 8%, rgba(255,255,255,.7), transparent),
+    radial-gradient(1.5px 1.5px at 65% 30%, rgba(255,255,255,.8), transparent),
+    radial-gradient(1px 1px at 75% 18%, rgba(255,255,255,.6), transparent),
+    radial-gradient(1px 1px at 85% 28%, rgba(255,255,255,.7), transparent),
+    radial-gradient(1px 1px at 15% 55%, rgba(255,255,255,.5), transparent),
+    radial-gradient(1.5px 1.5px at 25% 70%, rgba(255,255,255,.8), transparent),
+    radial-gradient(1px 1px at 40% 60%, rgba(255,255,255,.6), transparent),
+    radial-gradient(1px 1px at 50% 75%, rgba(255,255,255,.7), transparent),
+    radial-gradient(1px 1px at 60% 55%, rgba(255,255,255,.5), transparent),
+    radial-gradient(1.5px 1.5px at 70% 65%, rgba(255,255,255,.9), transparent),
+    radial-gradient(1px 1px at 80% 75%, rgba(255,255,255,.6), transparent),
+    radial-gradient(1px 1px at 90% 50%, rgba(255,255,255,.7), transparent),
+    radial-gradient(1px 1px at 5% 80%, rgba(255,255,255,.5), transparent),
+    radial-gradient(1px 1px at 35% 85%, rgba(255,255,255,.8), transparent),
+    radial-gradient(1.5px 1.5px at 95% 20%, rgba(255,255,255,.7), transparent),
+    radial-gradient(1px 1px at 88% 90%, rgba(255,255,255,.6), transparent),
+    /* 大光晕 */
+    radial-gradient(ellipse at 25% 20%, #1f1530 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 30%, #1f1530 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 80%, #1a1028 0%, transparent 40%);
+}
+/* 塔罗符号装饰层 */
+.stars-deco{
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+  font-size:28px; opacity:.06; letter-spacing:40px; line-height:1.8;
+  padding:40px; text-align:center; color:var(--gold);
+  user-select:none;
+}
+/* 月亮 */
+body::after{
+  content:''; position:fixed; top:30px; right:60px; pointer-events:none; z-index:0;
+  width:60px; height:60px; border-radius:50%;
+  box-shadow:
+    -12px -8px 0 4px rgba(212,168,89,.12),
+    inset 0 0 30px rgba(212,168,89,.08);
+  opacity:.6;
+}
+
+.app{position:relative;z-index:1; max-width:720px;width:100%;}
+.card{
+  background:var(--card); border:1px solid var(--border); border-radius:20px;
+  padding:36px 28px 28px; box-shadow:0 12px 48px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.03);
+  position:relative; animation:fadeIn .6s ease;
+}
+/* 卡牌金边 */
+.card::before{
+  content:''; position:absolute; inset:-1px; border-radius:20px; padding:1px;
+  background:linear-gradient(135deg,var(--gold),transparent 40%,transparent 60%,var(--gold));
+  -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude; pointer-events:none; opacity:.35;
+}
+/* 卡牌四角塔罗符号 */
+.card::after{
+  content:'✧ ✧ ✧ ✧ ✧ ✧ ✧ ✧'; position:absolute; bottom:12px; left:50%;
+  transform:translateX(-50%); font-size:11px; letter-spacing:14px;
+  color:var(--gold); opacity:.12; white-space:nowrap; pointer-events:none;
+}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes twinkle{
+  0%,100%{opacity:.3}
+  50%{opacity:.7}
+}
+@keyframes floatStar{
+  0%,100%{transform:translateY(0) rotate(0deg)}
+  33%{transform:translateY(-8px) rotate(3deg)}
+  66%{transform:translateY(4px) rotate(-2deg)}
+}
+
+.orn{text-align:center;font-size:22px;letter-spacing:10px;color:var(--gold);opacity:.5;margin-bottom:8px;user-select:none;}
+.title{text-align:center;font-size:30px;font-weight:900;color:var(--goldL);text-shadow:0 0 40px var(--glow);letter-spacing:4px;margin-bottom:4px;}
+.subtitle{text-align:center;font-size:13px;color:var(--muted);letter-spacing:3px;margin-bottom:20px;}
+.q-label{font-size:13px;color:var(--gold);letter-spacing:2px;opacity:.7;margin-bottom:8px;}
+.q-text{font-size:18px;line-height:1.8;font-weight:600;color:var(--text);margin-bottom:20px;min-height:60px;}
+textarea{
+  width:100%; padding:14px 18px; background:rgba(255,255,255,.04); border:1px solid var(--border);
+  border-radius:14px; color:var(--text); font-size:15px; font-family:inherit; resize:vertical;
+  min-height:90px; line-height:1.7; transition:.3s;
+}
+textarea:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px var(--glow);background:rgba(255,255,255,.06);}
+textarea::placeholder{color:var(--muted);opacity:.5;}
+.btn{
+  display:inline-block; padding:13px 36px; background:linear-gradient(135deg,var(--gold),#b8924a);
+  color:#0e0b14; font-weight:700; font-size:15px; font-family:inherit; border:none; border-radius:40px;
+  cursor:pointer; letter-spacing:2px; transition:.3s; box-shadow:0 4px 20px rgba(212,168,89,.25);
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 8px 32px rgba(212,168,89,.4);}
+.btn:active{transform:translateY(0);}
+.btn-out{background:transparent;color:var(--gold);box-shadow:none;border:1px solid var(--gold);}
+.btn-out:hover{background:rgba(212,168,89,.08);}
+.btn-sm{padding:8px 20px;font-size:13px;}
+.choice-btns{display:flex;gap:20px;justify-content:center;margin:16px 0;}
+.choice{
+  padding:18px 44px;font-size:20px;font-weight:700;border-radius:60px;background:transparent;
+  border:2px solid var(--border);color:var(--text);cursor:pointer;transition:.3s;font-family:inherit;letter-spacing:3px;
+}
+.choice:hover{border-color:var(--gold);background:rgba(212,168,89,.06);box-shadow:0 0 30px var(--glow);transform:scale(1.02);}
+.progress{display:flex;align-items:center;gap:14px;margin-bottom:24px;}
+.progress .bar{flex:1;height:4px;background:var(--border);border-radius:4px;overflow:hidden;}
+.progress .fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--goldL));border-radius:4px;transition:.5s;}
+.progress .lbl{font-size:12px;color:var(--muted);white-space:nowrap;}
+.result-box{padding:8px 0;}
+.result-title{font-size:26px;font-weight:900;color:var(--goldL);text-align:center;margin-bottom:8px;text-shadow:0 0 40px var(--glow);}
+.result-sub{text-align:center;color:var(--muted);font-size:13px;letter-spacing:2px;margin-bottom:20px;}
+.result-content{
+  background:rgba(255,255,255,.03);border-radius:16px;padding:24px 20px;
+  border-left:3px solid var(--gold);line-height:2;font-size:16px;white-space:pre-wrap;word-break:break-word;
+}
+.result-content strong{color:var(--goldL);font-weight:700;}
+/* 名字频率表 */
+.name-table{
+  width:100%; border-collapse:collapse; margin:16px 0; font-size:14px;
+}
+.name-table th{background:rgba(212,168,89,.12);color:var(--gold);padding:10px 12px;text-align:left;font-weight:600;border-bottom:1px solid var(--border);}
+.name-table td{padding:10px 12px;border-bottom:1px solid var(--border);}
+.name-table .highlight-name{color:var(--goldL);font-weight:700;font-size:1.1em;}
+.name-table .q-ref{color:var(--muted);font-size:.85em;}
+.score-ring{
+  width:110px;height:110px;border-radius:50%;margin:16px auto;
+  background:conic-gradient(var(--gold) var(--pct,0%),var(--border) var(--pct,0%));
+  display:flex;align-items:center;justify-content:center;
+}
+.score-inner{
+  width:82px;height:82px;border-radius:50%;background:var(--card);
+  display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:900;color:var(--goldL);
+}
+.hidden{display:none !important;}
+.row{display:flex;gap:12px;margin-top:14px;flex-wrap:wrap;}
+.flex1{flex:1;}
+.tc{text-align:center;}
+.mt16{margin-top:16px;}
+.mt20{margin-top:20px;}
+.mb16{margin-bottom:16px;}
+
+.author-section{margin-top:28px;padding-top:18px;border-top:1px solid var(--border);text-align:center;}
+.author-btn{background:transparent;border:none;color:var(--muted);font-size:11px;cursor:pointer;opacity:.3;transition:.3s;font-family:inherit;letter-spacing:2px;}
+.author-btn:hover{opacity:.8;}
+.pwd-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;z-index:999;}
+.pwd-overlay.open{display:flex;}
+.pwd-box{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:30px 32px;max-width:380px;width:90%;box-shadow:0 12px 48px rgba(0,0,0,.7);}
+.pwd-box h3{color:var(--gold);font-size:17px;margin-bottom:6px;letter-spacing:2px;}
+.pwd-box p{color:var(--muted);font-size:13px;margin-bottom:16px;}
+.pwd-box input{width:100%;padding:12px 16px;background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:15px;font-family:inherit;margin-bottom:14px;}
+.pwd-box input:focus{outline:none;border-color:var(--gold);}
+.pwd-err{color:#eb5757;font-size:12px;margin-top:-8px;margin-bottom:10px;display:none;}
+.answer-list{max-height:400px;overflow-y:auto;}
+.answer-item{padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;line-height:1.6;}
+.answer-item:last-child{border-bottom:none;}
+.answer-item .q{color:var(--gold);font-weight:600;}
+.answer-item .a{color:var(--muted);}
+.empty{color:var(--muted);text-align:center;padding:30px 0;}
+
+/* 浮动塔罗卡牌装饰 */
+.float-card{
+  position:fixed; pointer-events:none; z-index:0;
+  width:50px; height:80px; border-radius:6px; opacity:.05;
+  border:1.5px solid var(--gold); background:transparent;
+  animation:floatStar 8s ease-in-out infinite;
+}
+.float-card:nth-child(1){top:8%;left:5%;animation-delay:0s;}
+.float-card:nth-child(2){top:15%;right:8%;animation-delay:2s;width:40px;height:64px;}
+.float-card:nth-child(3){top:60%;left:3%;animation-delay:4s;}
+.float-card:nth-child(4){top:70%;right:4%;animation-delay:1s;width:44px;height:70px;}
+.float-card:nth-child(5){top:40%;left:90%;animation-delay:3s;width:36px;height:58px;}
+
+@media(max-width:600px){
+  .card{padding:24px 14px 20px;}
+  .title{font-size:24px;}
+  .q-text{font-size:16px;}
+  .choice{padding:14px 24px;font-size:17px;}
+  .btn{padding:11px 22px;font-size:14px;}
+  .choice-btns{flex-direction:column;align-items:center;gap:10px;}
+  .float-card{display:none;}
+  .name-table{font-size:12px;}
+  .name-table th,.name-table td{padding:6px 8px;}
+}
+</style>
+</head>
+<body>
+
+<!-- 塔罗装饰元素 -->
+<div class="stars-deco" aria-hidden="true">
+  ✦ ✧ ⭐ ✦ ✧ ✦ ⭐ ✧ ✦ ✧ ⭐ ✦ ✧
+</div>
+<div class="float-card" aria-hidden="true"></div>
+<div class="float-card" aria-hidden="true"></div>
+<div class="float-card" aria-hidden="true"></div>
+<div class="float-card" aria-hidden="true"></div>
+<div class="float-card" aria-hidden="true"></div>
+
+<div class="app">
+<div class="card" id="card">
+
+  <div class="orn">✦ ✦ ✦</div>
+
+  <!-- HOME -->
+  <div id="home">
+    <div class="title">🔮 恋爱塔罗牌</div>
+    <div class="subtitle">— 占卜你心中的答案 —</div>
+    <div class="tc" style="font-size:56px;margin:16px 0;">🃏</div>
+    <p class="tc" style="color:var(--muted);font-size:14px;line-height:1.9;margin-bottom:20px;">
+      静下心，让塔罗牌引导你<br>每一道题都是一次与内心的对话
+    </p>
+    <div class="tc"><button class="btn" onclick="goChoice()">开始占卜</button></div>
+    <div class="orn" style="font-size:16px;margin-top:20px;">✧ ✧ ✧</div>
+  </div>
+
+  <!-- CHOICE -->
+  <div id="choice" class="hidden">
+    <div class="tc" style="font-size:36px;margin-bottom:12px;">🃏</div>
+    <div class="q-text tc" style="font-size:20px;">你现在是否单身？</div>
+    <p class="tc" style="color:var(--muted);font-size:13px;margin-bottom:16px;">请诚实回答，塔罗牌会指引你</p>
+    <div class="choice-btns">
+      <button class="choice" onclick="startGame('single')">是，我单身</button>
+      <button class="choice" onclick="startGame('couple')">否，我在恋爱</button>
+    </div>
+    <div class="orn" style="font-size:16px;margin-top:16px;">✧ ✧ ✧</div>
+  </div>
+
+  <!-- QUESTIONS -->
+  <div id="questions" class="hidden">
+    <div class="progress">
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <span class="lbl" id="plabel">0/12</span>
+    </div>
+    <div class="q-label" id="qnum">第1题</div>
+    <div class="q-text" id="qtext"></div>
+    <textarea id="qinput" placeholder="写下你的答案… 用心回答，塔罗牌在倾听"></textarea>
+    <div class="row">
+      <button class="btn flex1" id="btnNext" onclick="nextQ()">下一题 →</button>
+      <button class="btn btn-out" id="btnPrev" onclick="prevQ()">← 上一题</button>
+    </div>
+    <p class="tc" style="font-size:12px;color:var(--muted);margin-top:10px;" id="hint">点击「下一题」保存答案</p>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result" class="hidden">
+    <div class="result-title" id="rtitle"></div>
+    <div class="result-sub" id="rsub"></div>
+    <div id="rbody"></div>
+    <div class="tc mt20"><button class="btn" onclick="restart()">重新占卜</button></div>
+  </div>
+
+  <!-- AUTHOR -->
+  <div class="author-section">
+    <button class="author-btn" onclick="toggleAuthor()">⚜ 作者入口</button>
+  </div>
+</div>
+
+<!-- AUTHOR PANEL -->
+<div id="authorPanel" class="hidden" style="margin-top:16px;">
+  <div class="card">
+    <h3 style="color:var(--gold);font-size:16px;margin-bottom:12px;">📜 玩家答案记录</h3>
+    <div id="authorContent" class="answer-list"></div>
+    <div class="row" style="justify-content:flex-end;">
+      <button class="btn btn-out btn-sm" onclick="clearStorage()">清空记录</button>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- PASSWORD -->
+<div class="pwd-overlay" id="pwdOverlay">
+  <div class="pwd-box">
+    <h3>🔑 作者验证</h3>
+    <p>请输入密码查看所有答案</p>
+    <input type="password" id="pwdInput" placeholder="请输入密码">
+    <div class="pwd-err" id="pwdErr">❌ 密码错误</div>
+    <div class="row">
+      <button class="btn btn-out flex1" onclick="closePwd()">取消</button>
+      <button class="btn flex1" onclick="checkPwd()">确认</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== DATA ====================
+const Q = {
+  single:[
+    {id:1,t:'你的上一段恋爱是什么时候结束的？'},
+    {id:2,t:'最近有没有哪部电影／哪首歌让你特别有感触？是想到谁了吗？'},
+    {id:3,t:'如果世界末日了，你手机里只能联系一个人，你第一反应是打给谁？'},
+    {id:4,t:'你的前男友和初恋身上，你觉得有什么很不一样的特质吗？'},
+    {id:5,t:'如果你要去完成一件很困难的事，必须选一个人搭档，你会选谁？'},
+    {id:6,t:'假如你有一件特别丢脸或脆弱的事，必须告诉我或者他，你更倾向于告诉谁？'},
+    {id:7,t:'你遇到了一个特别好笑的事，拿起手机第一反应想分享给谁？那个让你超级生气的事，又想第一时间骂给谁听？'},
+    {id:8,t:'你有没有对某个人做过一些事，是你绝对不想让其他人知道的？那种偷偷的、只对他才有的行为。'},
+    {id:9,t:'有没有一个人的动态（朋友圈、头像、签名）你会反复看，甚至会去猜他发这条的时候在想什么？'},
+    {id:10,t:'如果出了一件大事，你觉得自己扛不住的时候，除了家人，你第一个动念"希望他在我身边"的人会是谁？'},
+    {id:11,t:'如果让你今年必须和一个人去进行一次三天两夜的短途旅行，从你认识的男生里选，你会选谁？你脑海里马上浮现出的那个名字，不一定是最帅的，而是你觉得相处起来最舒服、最不用装的。'},
+    {id:12,t:'最后一个问题，不用名字，请你用"我和他"造个句子，描述一种你特别向往的、但现在还没发生的相处状态。'}
+  ],
+  couple:[
+    {id:13,t:'你觉得，现男友身上有什么特质，是你绝对不会在其他男生身上看到的。'},
+    {id:14,t:'跟男友在一起后，你觉得自己最大的"双标"行为是什么？'},
+    {id:15,t:'如果你的闺蜜／好朋友要找一个像你现男友这样的男朋友，你会真心支持，还是心里会有一点点不想把他这样的"模板"让给别人？'},
+    {id:16,t:'当你遇到一件让你很焦虑，但又不知道怎么跟别人开口的事，你脑子里浮现的第一个倾诉对象会是谁？'},
+    {id:17,t:'现男友身上的什么特质最吸引你，你最喜欢他哪点？'},
+    {id:18,t:'在你们吵架、冷战的时候，你心里有没有一丝确定，觉得"无论如何，这个人不会真的离开我"？'},
+    {id:19,t:'如果你要写一本关于你人生的书，关于现男友的这一章，你会取什么标题？'},
+    {id:20,t:'设想一下几年后一个很平常的周末下午，你们可能在一起，也可能不在了。你脑子里最先闪过的那幅画面里，有没有他？在做什么？'},
+    {id:21,t:'现男友身上的什么特质最吸引你，你最喜欢他哪点？'},
+    {id:22,t:'用一个比喻来形容他在你人生中的角色，你觉得是"港湾"，"战友"，"镜子"，还是一本"永远翻不完的书"？或者你的比喻是什么？'},
+    {id:23,t:'如果他突然需要离开这座城市很长一段时间，你觉得你生活里最无法被替代的那部分，会是什么。'},
+    {id:24,t:'在你觉得自己最糟糕、最不想面对任何人的时候，你会真心觉得"他在不在你身边也没关系"吗？为什么？'}
+  ]
+};
+
+const ADMIN_PWD='tarot2026';
+const STORAGE='tarot_data';
+
+// ==================== STATE ====================
+let mode=null, idx=0, answers={}, qlist=[], total=0;
+
+function $(id){return document.getElementById(id);}
+
+// ==================== NAVIGATION ====================
+function show(id){
+  ['home','choice','questions','result'].forEach(s=>$(s).classList.add('hidden'));
+  $(id).classList.remove('hidden');
+}
+function goChoice(){show('choice');}
+
+function startGame(m){
+  mode=m; qlist=Q[m]; total=qlist.length; idx=0; answers={};
+  const all=getStorage();
+  const exist=all.find(e=>e.mode===m);
+  if(exist&&exist.answers) answers=exist.answers;
+  show('questions'); renderQ();
+}
+
+// ==================== QUESTION RENDERING ====================
+function renderQ(){
+  const q=qlist[idx];
+  $('qnum').textContent='第 '+q.id+' 题';
+  $('qtext').textContent=q.t;
+  $('qinput').value=answers[q.id]||'';
+  $('fill').style.width=((idx+1)/total*100)+'%';
+  $('plabel').textContent=(idx+1)+'/'+total;
+  $('btnPrev').style.visibility=idx===0?'hidden':'visible';
+  $('btnNext').textContent=idx===total-1?'✨ 查看结果':'下一题 →';
+  $('hint').textContent='已保存 '+Object.keys(answers).length+' 个答案';
+  setTimeout(()=>$('qinput').focus(),100);
+}
+
+function saveA(){
+  const val=$('qinput').value.trim();
+  if(val) answers[qlist[idx].id]=val; else delete answers[qlist[idx].id];
+  saveStorage();
+}
+function nextQ(){saveA(); if(idx===total-1){finish();return;} idx++; renderQ();}
+function prevQ(){saveA(); if(idx>0){idx--; renderQ();}}
+
+// ==================== STORAGE ====================
+function getStorage(){
+  try{const r=localStorage.getItem(STORAGE);return r?JSON.parse(r):[];}catch(e){return[];}
+}
+function saveStorage(){
+  const all=getStorage();
+  all.push({mode,answers,timestamp:Date.now()});
+  if(all.length>50) all.shift();
+  localStorage.setItem(STORAGE,JSON.stringify(all));
+}
+
+// ==================== 名字提取（加强版） ====================
+function extractNames(text){
+  if(!text)return[];
+  let names=[];
+
+  // 策略1: 中文字符后紧跟的2~4字中文名（如"打给张三"→张三）
+  const cn1=text.match(/给([一-龥]{2,4})/g);
+  if(cn1) cn1.forEach(m=>names.push(m.replace('给','')));
+
+  // 策略2: "选"、"叫"、"是"后面的2~4字中文
+  const cn2=text.match(/(?:选|叫|是|联系|告诉|分享给|骂给)([一-龥]{2,4})/g);
+  if(cn2) cn2.forEach(m=>names.push(m.replace(/^(选|叫|是|联系|告诉|分享给|骂给)/,'')));
+
+  // 策略3: 引号中的内容（如"张三"）
+  const quoted=text.match(/["""]([一-龥a-zA-Z]{2,10})[""」]/g);
+  if(quoted) quoted.forEach(m=>names.push(m.replace(/[""""]/g,'')));
+
+  // 策略4: 「」中的内容
+  const bracketed=text.match(/「([一-龥a-zA-Z]{2,10})」/g);
+  if(bracketed) bracketed.forEach(m=>names.push(m.replace(/[「」]/g,'')));
+
+  // 策略5: 普通2~4字中文名（不在停用词列表中）
+  const allCN=text.match(/(?<![一-龥])[一-龥]{2,4}(?![一-龥])/g)||[];
+  const sw=new Set(['但是','因为','所以','如果','虽然','然而','不过','而且','或者','没有','可以','已经','还是','比较','非常','什么','怎么','为什么','哪个','哪里','怎样','多少','几个','这些','那些','这个','那个','一个','两个','三个','不会','不是','不能','不要','这么','那么','这样','那样','自己','别人','大家','我们','你们','他们','她们','它们','知道','觉得','认为','希望','想要','喜欢','讨厌','害怕','担心','时候','时间','地方','事情','东西','问题','答案','感觉','想法','心情','状态','关系','感情','生活','工作','学习','朋友','家人','妈妈','爸爸','姐姐','妹妹','哥哥','弟弟','闺蜜','兄弟','同学','同事','初恋','前男友','现男友','男友','对象','上一段','一段','之前','大概','好像','可能','应该','一定','只是','每次','如果','第一','第二','马上']);
+  allCN.forEach(w=>{if(!sw.has(w)&&!/^[\d\W]+$/.test(w))names.push(w);});
+
+  // 策略6: 英文名（首字母大写，2~10字母）
+  const en=text.match(/\b[A-Z][a-z]{1,9}\b/g)||[];
+  en.forEach(w=>{if(w.length>=2)names.push(w);});
+
+  // 统计频率（大小写不敏感）
+  const freq={};
+  names.forEach(n=>{
+    const key=n.toLowerCase();
+    freq[key]={name:n,count:(freq[key]?freq[key].count:0)+1};
+  });
+
+  // 按出现次数排序
+  return Object.values(freq).sort((a,b)=>b.count-a.count);
+}
+
+// ==================== 情感分析 ====================
+function sentiment(text){
+  if(!text||text.trim().length<2)return 50;
+  const pos=['爱','喜欢','幸福','开心','温暖','安心','依赖','信任','珍惜','重要','不可或缺','唯一','特别','美好','感动','甜蜜','浪漫','坚定','支持','包容','理解','尊重','陪伴','守护','永远','一起','共同','未来','希望','期待','向往','真心','深情','在乎','牵挂','惦记','想念','拥抱','温柔','体贴','细心','可靠','踏实','满足','骄傲','幸运','感激','感恩','值得','吸引','欣赏','崇拜','心动'];
+  const neg=['痛苦','难过','伤心','失望','绝望','无奈','遗憾','后悔','愤怒','生气','恨','讨厌','嫌弃','冷漠','疏远','分开','分手','离开','失去','放弃','挣扎','矛盾','纠结','怀疑','不安','焦虑','害怕','恐惧','逃避','压抑','疲惫','累','心碎','崩溃','委屈','不公平','自私','虚伪','欺骗','背叛','伤害','冷战','吵架','争吵','误会','隔阂','距离','陌生','淡了','算了','随便','无所谓'];
+  let pc=0,nc=0;
+  pos.forEach(w=>{if(text.includes(w))pc++;});
+  neg.forEach(w=>{if(text.includes(w))nc++;});
+  let s=55+pc*5-nc*7+Math.min(text.length/20,15);
+  if(text.includes('永远')||text.includes('唯一')||text.includes('不可或缺'))s+=10;
+  if(text.includes('希望')&&text.includes('未来'))s+=5;
+  return Math.max(10,Math.min(100,Math.round(s)));
+}
+
+// ==================== 结果分析 ====================
+function finish(){
+  saveA();
+  if(mode==='single'){
+    // --- 1-12题：名字分析 ---
+    // 收集每个名字出现在哪些题目中
+    const nameMap={}; // { nameLower: { display, count, questions:[] } }
+    qlist.forEach(q=>{
+      const t=answers[q.id]||'';
+      const found=extractNames(t);
+      found.forEach(f=>{
+        const key=f.name.toLowerCase();
+        if(!nameMap[key]) nameMap[key]={display:f.name,count:0,questions:[]};
+        nameMap[key].count+=f.count;
+        if(!nameMap[key].questions.includes(q.id)) nameMap[key].questions.push(q.id);
+      });
+    });
+
+    // 按总出现次数排序
+    const ranked=Object.values(nameMap).sort((a,b)=>b.count-a.count);
+
+    let html='';
+
+    if(ranked.length===0){
+      // 没检测到名字，尝试找"他"
+      let allT='';
+      qlist.forEach(q=>{allT+=(answers[q.id]||'')+' ';});
+      const heC=(allT.match(/他/g)||[]).length;
+      const taC=(allT.match(/TA/gi)||[]).length;
+      html+=`<div class="result-content">`;
+      html+=`经过 ${total} 道问题的探索，塔罗牌为你揭示——\n\n`;
+      if(heC+taC>0){
+        html+=`你在回答中 ${heC+taC} 次提到了 <strong>「他」</strong>。\n`;
+        html+=`虽然你没有直接说出名字，但这个「他」已悄然占据你的思绪。\n\n`;
+        html+=`🔮 那个你不愿（或不敢）点名的人，往往就是你最在意的。`;
+      }else{
+        html+=`你的回答中没有出现明显的人名，\n`;
+        html+=`也许那个最重要的人，你还没有遇到——\n`;
+        html+=`也许 TA 已经在你心里，只是你还不愿意承认。\n\n`;
+        html+=`🔮 塔罗牌说：空白也是一种答案。`;
+      }
+      html+=`</div>`;
+    }else{
+      // 有检测到名字
+      const top=ranked[0];
+      let d=`经过 ${total} 道问题的深入探索，塔罗牌为你揭示——\n\n`;
+      d+=`在你的内心深处，✨ <strong>「${top.display}」</strong> ✨ 是最重要的人。\n`;
+      d+=`TA 的名字在你的回答中出现了 <strong>${top.count}</strong> 次，\n`;
+      d+=`跨越了第 ${top.questions.map(q=>q+'题').join('、')}。\n\n`;
+      if(top.count>=3){
+        d+=`🔮 你反复提到 TA，这份在意已经超越了普通的想念。`;
+      }else{
+        d+=`🔮 即使提到的次数不算最多，但每一次提及都带着特殊的重量。`;
+      }
+      d+=`\n\n愿你能跟随内心的指引，去珍惜这份情感。`;
+      html+=`<div class="result-content">${d}</div>`;
+
+      // 名字频率表
+      html+=`<div style="margin-top:20px;"><h4 style="color:var(--gold);font-size:14px;letter-spacing:2px;margin-bottom:10px;">📊 你答案中出现的所有名字</h4>`;
+      html+=`<table class="name-table"><thead><tr><th>名字</th><th>出现次数</th><th>出现在哪些题</th></tr></thead><tbody>`;
+      ranked.forEach((r,i)=>{
+        html+=`<tr>
+          <td class="${i===0?'highlight-name':''}" style="color:var(--text);">${i===0?'👑 ':''}${r.display}</td>
+          <td style="color:var(--goldL);font-weight:600;">${r.count} 次</td>
+          <td class="q-ref">第 ${r.questions.map(q=>q+'题').join('、')}</td>
+        </tr>`;
+      });
+      html+=`</tbody></table></div>`;
+
+      // 总结
+      if(ranked.length>1){
+        html+=`<p style="color:var(--muted);font-size:13px;margin-top:8px;text-align:center;">除了「${top.display}」，你的答案里还有 ${ranked.slice(1).map(r=>r.display).join('、')}。</p>`;
+      }
+    }
+    showResult('🔮 塔罗占卜结果','— 谁在你心中最重要 —',html,null);
+
+  }else{
+    // --- 13-24题：情感评分 ---
+    let totalS=0,cnt=0,details=[];
+    qlist.forEach(q=>{
+      const t=answers[q.id]||'';
+      if(t.trim()){const s=sentiment(t);totalS+=s;cnt++;details.push({id:q.id,text:t,score:s});}
+    });
+    const score=cnt>0?Math.min(100,Math.max(10,Math.round(totalS/cnt)+(cnt>=8?3:0))):50;
+    let d=`通过 ${total} 道问题的深入探索，塔罗牌为你测算——\n\n`;
+    d+=`「TA」在你心中的分量，达到了 <strong>${score}</strong> 分（满分100分）。\n\n`;
+    if(score>=85)d+=`🌟 这是近乎满分的答案。TA 是你生命中不可或缺的存在。`;
+    else if(score>=70)d+=`💛 这是一个很高的分数。TA 在你心中有着稳固的位置。`;
+    else if(score>=50)d+=`🌙 这是一个中等的分数。TA 在你心中有一定分量，但或许还有些不确定。`;
+    else d+=`🌫️ 这个分数偏低。或许你正在经历一些困惑，但一切都在变化之中。`;
+    d+=`\n\n🔮 无论分数高低，都是你真实的心声。`;
+    if(details.length>0){
+      const max=details.reduce((a,b)=>a.score>b.score?a:b);
+      const min=details.reduce((a,b)=>a.score<b.score?a:b);
+      d+=`\n\n📖 第 ${max.id} 题的情感最为浓烈，`;
+      if(max.id!==min.id) d+=`\n第 ${min.id} 题的回答则最为克制。`;
+    }
+
+    let html=`<div class="score-ring" style="--pct:${score}%;"><div class="score-inner">${score}</div></div>`;
+    html+=`<p class="tc" style="color:var(--muted);font-size:13px;margin-bottom:16px;">💖 情感指数 · 满分100分</p>`;
+    html+=`<div class="result-content">${d}</div>`;
+    showResult('🔮 塔罗占卜结果','— 他在你心中的分数 —',html,score);
+  }
+}
+
+function showResult(title,sub,html,score){
+  show('result');
+  $('rtitle').textContent=title;$('rsub').textContent=sub;
+  html+=`<p class="tc" style="margin-top:20px;font-size:12px;color:var(--muted);">✦ 答案已保存，作者入口可查看 ✦</p>`;
+  $('rbody').innerHTML=html;
+}
+function restart(){show('home');}
+
+// ==================== AUTHOR ====================
+function toggleAuthor(){
+  if($('authorPanel').classList.contains('hidden')){
+    $('pwdOverlay').classList.add('open');$('pwdInput').value='';$('pwdErr').style.display='none';
+    setTimeout(()=>$('pwdInput').focus(),200);
+  }else{$('authorPanel').classList.add('hidden');}
+}
+function closePwd(){$('pwdOverlay').classList.remove('open');}
+function checkPwd(){
+  if($('pwdInput').value===ADMIN_PWD){
+    $('pwdOverlay').classList.remove('open');
+    $('authorPanel').classList.remove('hidden');
+    renderAuthor();
+  }else{$('pwdErr').style.display='block';}
+}
+$('pwdInput').addEventListener('keydown',e=>{if(e.key==='Enter')checkPwd();});
+
+// 根据题目ID获取完整题目文本
+function getQuestionText(qid){
+  if(!getQuestionText._map){
+    const m={};
+    [...Q.single,...Q.couple].forEach(q=>{m[q.id]=q.t;});
+    getQuestionText._map=m;
+  }
+  return getQuestionText._map[qid]||'(题目未找到)';
+}
+
+function renderAuthor(){
+  const all=getStorage();
+  if(!all.length){$('authorContent').innerHTML='<div class="empty">📭 暂无答案记录</div>';return;}
+  let h='<div style="font-size:12px;color:var(--muted);margin-bottom:10px;">共 '+all.length+' 条记录</div>';
+  [...all].reverse().forEach((e,i)=>{
+    const lbl=e.mode==='single'?'💫 单身组 (1-12题)':'💞 恋爱组 (13-24题)';
+    const t=e.timestamp?new Date(e.timestamp).toLocaleString():'未知';
+    h+='<div class="answer-item" style="border-bottom:2px solid var(--border);padding:14px 0;margin-bottom:8px;">';
+    h+='<div style="display:flex;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px;"><span style="color:var(--gold);font-weight:600;font-size:14px;">'+lbl+'</span><span style="font-size:11px;color:var(--muted);">'+t+'</span></div>';
+    const ks=Object.keys(e.answers||{}); ks.sort((a,b)=>parseInt(a)-parseInt(b));
+    ks.forEach(k=>{
+      const qt=getQuestionText(parseInt(k));
+      const at=e.answers[k]||'(未作答)';
+      h+='<div style="margin:8px 0;padding:10px 14px;background:rgba(255,255,255,.02);border-radius:10px;border-left:2px solid var(--border);">';
+      h+='<div style="font-size:13px;color:var(--gold);line-height:1.6;margin-bottom:6px;">📝 <strong>第'+k+'题：</strong>'+qt+'</div>';
+      h+='<div style="font-size:14px;color:var(--text);line-height:1.8;white-space:pre-wrap;word-break:break-word;">💬 '+at+'</div>';
+      h+='</div>';
+    });
+    h+='</div>';
+  });
+  $('authorContent').innerHTML=h;
+}
+if(!localStorage.getItem(STORAGE)) localStorage.setItem(STORAGE,'[]');
+</script>
+</body>
+</html>
