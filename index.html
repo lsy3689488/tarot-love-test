@@ -554,8 +554,34 @@ function finish(){
 function showResult(title,sub,html,score){
   show('result');
   $('rtitle').textContent=title;$('rsub').textContent=sub;
-  html+=`<p class="tc" style="margin-top:20px;font-size:12px;color:var(--muted);">✦ 答案已保存，作者入口可查看 ✦</p>`;
+  var allQA='';
+  for(var i=0;i<qlist.length;i++){
+    var q=qlist[i];
+    var a=answers[q.id]||'(未作答)';
+    allQA+='第'+q.id+'题：'+q.t+'\n回答：'+a+'\n\n';
+  }
+  html+='<div style="margin-top:20px;text-align:center;"><button class="btn" style="background:#4CAF50;color:#fff;font-size:16px;padding:14px 36px;" onclick="copyAnswers()">📋 复制全部答案发给老师</button><textarea id="hiddenAnswers" style="position:absolute;left:-9999px;"></textarea><p id="copyMsg" style="margin-top:10px;font-size:14px;color:#4CAF50;display:none;">✅ 已复制！请粘贴发送给老师</p></div>';
+  html+='<p class="tc" style="margin-top:14px;font-size:12px;color:var(--muted);">✦ 作者入口可查看本机已保存答案 ✦</p>';
   $('rbody').innerHTML=html;
+  setTimeout(function(){
+    var ta=document.getElementById('hiddenAnswers');
+    if(ta) ta.value=allQA;
+  },200);
+}
+
+function copyAnswers(){
+  var ta=document.getElementById('hiddenAnswers');
+  if(!ta) return;
+  ta.style.display='block'; ta.select(); ta.select();
+  try{
+    document.execCommand('copy');
+    document.getElementById('copyMsg').style.display='block';
+  }catch(e){
+    navigator.clipboard.writeText(ta.value).then(function(){
+      document.getElementById('copyMsg').style.display='block';
+    });
+  }
+  ta.style.display='none';
 }
 function restart(){show('home');}
 
